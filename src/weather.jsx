@@ -1,7 +1,48 @@
-import React from "react";
-import { Sun, Droplets, Wind, Thermometer } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Sun, Droplets, Wind, Thermometer, ThermometerSnowflake, ThermometerSun } from "lucide-react";
+import api from "./weatherApi";
 
 function Weather() {
+    const [query, setQuery] = useState('')
+    const [weather, setWeather] = useState({});
+    const [error, setError] = useState('')
+
+    useEffect(() => {
+        const defaultCity = 'Mumbai';
+        fetch(`${api.base}weather?q=${defaultCity}&units=metric&appid=${api.key}`)
+            .then(res => res.json())
+            .then(result => {
+                if (result.cod !== "404") {
+                    setWeather(result);
+                }
+            })
+            .catch(err => console.error("Error fetching default city:", err));
+    }, []);
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => setError(''), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
+    const search = evt => {
+        if (evt.key === "Enter") {
+            fetch(`${api.base}weather?q=${query}&units=metric&appid=${api.key}`)
+                .then(res => res.json())
+                //.then(result=>{console.log(result)});
+                .then(result => {
+                    if (result.cod === '404') {
+                        setError('City not found, Please enter valid city.');
+                        setWeather({});
+                    }
+                    else {
+                        setWeather(result);
+
+                        console.log(result)
+                    }
+                    setQuery('')
+                })
+        }
+    }
     return (
         <div className="bg-[#0f172a] min-h-screen text-white flex flex-col md:flex-row">
             {/* Sidebar */}
@@ -41,6 +82,13 @@ function Weather() {
                             type="text"
                             placeholder="Search for cities"
                             className="w-full p-4 rounded-xl bg-[#1e293b] text-gray-300 outline-none"
+                            value={query}
+                            onChange={e => {
+                                setQuery(e.target.value);
+                                setError('')
+                            }}
+
+                            onKeyPress={search}
                         />
                     </div>
 
@@ -51,19 +99,37 @@ function Weather() {
                 </div>
 
                 {/* Weather Info */}
-                <div className="flex items-center justify-around mt-8">
-                    {/* City Info */}
-                    <div className="flex flex-col items-center">
-                        <h1 className="text-5xl font-bold">Madrid</h1>
-                        <p className="text-gray-400">Chance of rain: 0%</p>
-                        <p className="text-6xl mt-2">31°</p>
+                {weather.name && weather.sys ? (
+                    <div className="flex items-center justify-around mt-8">
+                        <div className="flex flex-col items-center">
+                            <h1 className="text-5xl font-bold">
+                                {weather.name}, {weather.sys.country}
+                            </h1>
+                            <p className="text-gray-400">{weather?.weather?.[0]?.main}: {weather?.weather?.[0]?.description}</p>
+                            <p className="text-6xl mt-2">{Math.round(weather.main.temp)}°C</p>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            {weather?.weather?.[0]?.icon && (
+                                <img
+                                    src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
+                                    alt={weather.weather[0].description}
+                                    className="w-65 h-65"
+                                />
+                            )}
+                        </div>
                     </div>
+                ) : (
+                    <div className="mt-8 text-center text-gray-400 text-lg">
+                        🌍 Search for a city to see the weather
+                    </div>
+                )}
 
-                    {/* Sun Icon */}
-                    <div className="w-40 h-40 bg-yellow-400 rounded-full"></div>
-                </div>
-
-
+                {/* Error Popup */}
+                {error && (
+                    <div className="mt-5 p-3 bg-red-400 text-white text-bold rounded-lg">
+                        {error}
+                    </div>
+                )}
                 {/* Today Forecast */}
                 <div className="mt-6 bg-[#1e293b] p-4 rounded-2xl overflow-x-auto">
                     <h3 className="mb-4 text-gray-300">Today's Forecast</h3>
@@ -86,27 +152,29 @@ function Weather() {
                 </div>
 
                 {/* Air Conditions */}
+                {weather.main &&(
                 <div className="mt-6 bg-[#1e293b] p-4 rounded-2xl">
                     <h3 className="mb-4 text-gray-300">Air Conditions</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <p className="flex items-center text-gray-400"><Thermometer className="mr-2" size={16} /> Real Feel</p>
-                            <h4 className="text-xl">30°</h4>
+                            <h4 className="text-xl">{weather.main.feels_like}</h4>
                         </div>
                         <div>
-                            <p className="flex items-center text-gray-400"><Droplets className="mr-2" size={16} /> Chance of rain</p>
-                            <h4 className="text-xl">0%</h4>
+                            <p className="flex items-center text-gray-400"><ThermometerSnowflake className="mr-2" size={16} /> Min Temp</p>
+                            <h4 className="text-xl">{weather.main.temp_min}</h4>
                         </div>
                         <div>
                             <p className="flex items-center text-gray-400"><Wind className="mr-2" size={16} /> Wind</p>
-                            <h4 className="text-xl">0.2 km/h</h4>
+                            <h4 className="text-xl">{(weather.wind.speed*3.6).toFixed(1)} km/h</h4>
                         </div>
                         <div>
-                            <p className="flex items-center text-gray-400"><Sun className="mr-2" size={16} /> UV Index</p>
-                            <h4 className="text-xl">3</h4>
+                            <p className="flex items-center text-gray-400"><ThermometerSun className="mr-2" size={16} /> Max Temp</p>
+                            <h4 className="text-xl">{weather.main.temp_max}</h4>
                         </div>
                     </div>
-                </div>
+                </div>)}
+                
             </div>
 
             {/* 7-Day Forecast */}
