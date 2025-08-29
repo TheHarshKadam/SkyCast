@@ -6,6 +6,32 @@ function Weather() {
     const [query, setQuery] = useState('')
     const [weather, setWeather] = useState({});
     const [error, setError] = useState('')
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    useEffect(()=>{
+        const timer = setInterval(()=>{
+            setCurrentDate(new Date());
+        },60000);
+        return()=>clearInterval(timer);
+    },[]);
+
+    const dateBuilder = (d)=>{
+        let months = ['January', 'February', 'March', 'April', 'May',
+            'June', 'July', 'August', 'September', 'October', 'November', 'December'
+        ]
+        let days = ['Sun','Mon', 'Tue', 'Wed', 'Thurs',
+            'Fri', 'Sat'
+        ]
+        let day = days[d.getDay()];
+        let date = d.getDate();
+        let month = months[d.getMonth()];
+        let year = d.getFullYear();
+        
+        let hours = d.getHours().toString().padStart(2,'0');
+        let minutes = d.getMinutes().toString().padStart(2,'0');
+
+        return `${day}, ${date} ${month} ${year} | ${hours}:${minutes}`
+    }
 
     useEffect(() => {
         const defaultCity = 'Mumbai';
@@ -94,7 +120,7 @@ function Weather() {
 
                     {/* Date & Time */}
                     <h2 className="ml-6 text-sm md:text-base text-gray-400 whitespace-nowrap">
-                        Date : 24/08/2025 Time : 23:00
+                        {dateBuilder(currentDate)}
                     </h2>
                 </div>
 
@@ -131,6 +157,7 @@ function Weather() {
                     </div>
                 )}
                 {/* Today Forecast */}
+                {/*DUMMY DATA, NOT IMPLEMENTATED YET*/}
                 <div className="mt-6 bg-[#1e293b] p-4 rounded-2xl overflow-x-auto">
                     <h3 className="mb-4 text-gray-300">Today's Forecast</h3>
                     <div className="flex justify-between min-w-[600px] sm:min-w-0">
@@ -176,8 +203,8 @@ function Weather() {
                 </div>)}
                 
             </div>
-
             {/* 7-Day Forecast */}
+            {/*NOT IMPLEMENTATED YET*/}
             <div className="w-full md:w-64 p-4 md:p-6 bg-[#1e293b] rounded-t-3xl md:rounded-l-3xl order-1 md:order-2">
                 <h3 className="mb-6 text-gray-300">7-Day Forecast</h3>
                 <div className="space-y-4">
