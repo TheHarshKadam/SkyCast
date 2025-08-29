@@ -185,11 +185,11 @@ function Weather() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <p className="flex items-center text-gray-400"><Thermometer className="mr-2" size={16} /> Real Feel</p>
-                            <h4 className="text-xl">{weather.main.feels_like}</h4>
+                            <h4 className="text-xl">{weather.main.feels_like} °C</h4>
                         </div>
                         <div>
                             <p className="flex items-center text-gray-400"><ThermometerSnowflake className="mr-2" size={16} /> Min Temp</p>
-                            <h4 className="text-xl">{weather.main.temp_min}</h4>
+                            <h4 className="text-xl">{weather.main.temp_min} °C</h4>
                         </div>
                         <div>
                             <p className="flex items-center text-gray-400"><Wind className="mr-2" size={16} /> Wind</p>
@@ -197,7 +197,7 @@ function Weather() {
                         </div>
                         <div>
                             <p className="flex items-center text-gray-400"><ThermometerSun className="mr-2" size={16} /> Max Temp</p>
-                            <h4 className="text-xl">{weather.main.temp_max}</h4>
+                            <h4 className="text-xl">{weather.main.temp_max} °C</h4>
                         </div>
                     </div>
                 </div>)}
